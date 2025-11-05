@@ -6,7 +6,7 @@ import Field from './components/Field.vue'
 
 <template>
   Моя игра
-  <Field></Field>
+  <Field :width="10" :height="8"></Field>
   <header>
     <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
 

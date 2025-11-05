@@ -8,21 +8,59 @@ import MatrixCell from './MatrixCell.vue'
   </div>
       <div class="matrix">
         <div 
-          v-for="row in 10" 
-          :key="'row-a-' + row"
+          v-for="(rowData, rowIndex) in matrix" 
+          :key="'row-a-' + rowIndex"
           class="matrix-row"
         >
+      
           <MatrixCell 
-            v-for="col in 10" 
-            :key="`cell-a-${row}-${col}`"
-            :row="row"
-            :col="col"
-            :value="(row - 1) * 10 + col"
+          v-for="cell in rowData" 
+            :key="cell.id"
+            :row="cell.row"
+            :col="cell.col"
+            :value="cell.value"
             matrix-type="A"
-          />
+          /> 
         </div>
       </div>
 </template>
+
+<script>
+export default {
+  name: 'Field',
+  props: {
+    width: {
+      type: Number,
+      required: true
+    },
+    height: {
+      type: Number,
+      required: true
+    }
+  }, 
+   data() {
+    const newMatrix = []
+    for (let i = 0; i < this.height; i++) {
+        const row = []
+        for (let j = 0; j < this.width; j++) {
+          row.push({
+            row: i,
+            col: j,
+            value: i * this.height + j + 1,
+            id: `cell-${i}-${j}`,
+          })
+        }
+        newMatrix.push(row)
+    }
+  
+     return {
+        matrix: newMatrix
+      }
+   }
+}
+
+</script>
+
 
 <style scoped>
 .app {
