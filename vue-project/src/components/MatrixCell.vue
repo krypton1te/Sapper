@@ -1,12 +1,18 @@
+<script setup>
+import SupportIcon from './icons/IconSupport.vue'
+</script>
 <template>
-  <div 
-    class="matrix-cell"
-    :class="[matrixType, { 'even': isEven }]"
-    @click="handleClick"
-    @mouseenter="isHovered = true"
-    @mouseleave="isHovered = false"
-  >
-    <div class="value">{{ value }}</div>
+  <div class="matrix-cell" :class="[matrixType, { 'even': isEven }]" @click="handleClick"
+    @contextmenu.prevent="handleRightClick" @mouseenter="isHovered = true"
+    @mouseleave="isHovered = false">
+    <div class="value">
+      <span v-if="isOpen" :class="[{ 'mine-cell': isMine }]">
+        {{ nearMineCount }}
+      </span>
+      <span v-if="isFlag">
+        <SupportIcon />
+      </span>
+    </div>
     <div class="coordinates" v-if="isHovered">
       [{{ row }},{{ col }}]
     </div>
@@ -25,35 +31,52 @@ export default {
       type: Number,
       required: true
     },
-    value: {
-      type: Number,
-      required: true
-    },
     matrixType: {
       type: String,
       default: 'A'
+    },
+    isMine: {
+      type: Boolean,
+      required: true,
+    },
+    nearMineCount: {
+      type: Number,
+      required: true,
     }
   },
   data() {
     return {
-      isHovered: false
+      isHovered: false,
+      isOpen: false,
+      isFlag: false,
     }
   },
   computed: {
     isEven() {
-      return this.value % 2 === 0
+      return this.nearMineCount % 2 === 0
     }
   },
   methods: {
-    handleClick() {
+    handleRightClick(){
+      this.isFlag = true;
+    },
+    handleClick(event) {
+    const clickType = event.button === 2 ? 'right' : 'left';
+    if (clickType) {
+        this.isOpen = true;
+    }//else {
+    //    this.isFlag = true;
+     // }
+      //event.preventDefault();
+
       this.$emit('cell-click', {
         row: this.row,
         col: this.col,
-        value: this.value,
+        nearMineCount: this.nearMineCount,
         matrixType: this.matrixType
       })
-      
-      console.log(`Клик по матрице ${this.matrixType}: [${this.row}, ${this.col}] = ${this.value}`)
+
+      console.log(`Клик по матрице ${this.matrixType}: [${this.row}, ${this.col}] = ${this.nearMineCount}`)
     }
   }
 }
@@ -74,16 +97,21 @@ export default {
   font-size: 14px;
 }
 
+.matrix-cell .mine-cell {
+  background: darkred !important;
+}
+
 .matrix-cell:hover {
   transform: scale(1.1);
   z-index: 10;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 /* Стили для матрицы A */
 .matrix-cell.A {
   background: #ecf0f1;
 }
+
 .matrix-cell.A:hover {
   background: #d5dbdb;
 }
@@ -92,6 +120,7 @@ export default {
 .matrix-cell.B {
   background: #e8f6f3;
 }
+
 .matrix-cell.B:hover {
   background: #d0ece7;
 }
